@@ -4,7 +4,7 @@
 
 <head>
     <base href="../../../">
-    <link rel="shortcut icon" href="https://uin-alauddin.ac.id/themes//images/favicon.png" />
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}" />
     <title>{{ config('app.name') }} | Login</title>
     <meta charset="utf-8" />
     <meta property="og:description"
@@ -46,8 +46,7 @@
             <!--begin::Body-->
             <div class="d-none d-lg-flex justify-content-center align-items-center w-50 p-10"
                 style="background-color: #49aa81">
-                <img src="http://lp2m.uin-alauddin.ac.id/wp-content/uploads/2019/09/LP2M.png" style="width: 300px"
-                    alt="">
+                <img src="{{ asset('LP2M.png') }}" style="width: 300px" alt="">
             </div>
             <!--begin::Body-->
             <!--begin::Aside-->
@@ -58,8 +57,7 @@
                     <div class="py-20 shadow-lg"
                         style="background: rgb(110 101 101 / 50%); padding: 50px; border-radius: 10px">
                         <div class="d-flex d-lg-none justify-content-center align-items-center">
-                            <img src="http://lp2m.uin-alauddin.ac.id/wp-content/uploads/2019/09/LP2M.png"
-                                style="width: 150px; margin-bottom: 10px" alt="">
+                            <img src="{{ asset('LP2M.png') }}" style="width: 150px; margin-bottom: 10px" alt="">
                         </div>
                         <!--begin::Form-->
                         <form class="form w-100" method="POST" action="{{ route('login.login-proses') }}">

@@ -19,25 +19,32 @@ class PenilaianController extends BaseController
 
     public function proses($uuid)
     {
-        $result = (new PrometheeService())->proses($uuid); // hasil dari proses()
-        $dataLokasi = $result; // ambil data dari response
+        try {
+            $result = (new PrometheeService())->proses($uuid);
 
-        $flattened = [];
-
-        foreach ($dataLokasi as $lokasi) {
-            foreach ($lokasi['mahasiswa'] as $mhs) {
-                $flattened[] = [
-                    'uuid' => $mhs['uuid'],
-                    'nama' => $mhs['nama'],
-                    'jurusan' => $mhs['jurusan'],
-                    'net_flow' => $mhs['net_flow'],
-                    'nama_lokasi' => $lokasi['nama_lokasi'],
-                    'nim' => $mhs['nim'],
-                ];
+            if (!$result || !is_array($result)) {
+                return $this->sendError('Gagal memproses data.', [], 400);
             }
-        }
 
-        return $this->sendResponse($flattened, 'Get data success');
+            $flattened = [];
+
+            foreach ($result as $lokasi) {
+                foreach ($lokasi['mahasiswa'] as $mhs) {
+                    $flattened[] = [
+                        'uuid' => $mhs['uuid'],
+                        'nama' => $mhs['nama'],
+                        'jurusan' => $mhs['jurusan'],
+                        'net_flow' => $mhs['net_flow'],
+                        'nama_lokasi' => $lokasi['nama_lokasi'],
+                        'nim' => $mhs['nim'],
+                    ];
+                }
+            }
+
+            return $this->sendResponse($flattened, 'Get data success');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 400);
+        }
     }
 
     public function export($uuid)

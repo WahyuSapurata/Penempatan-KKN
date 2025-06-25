@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreKriteriaRequest;
 use App\Http\Requests\UpdateKriteriaRequest;
 use App\Models\Kriteria;
+use App\Models\SubKriteria;
 
 class KriteriaController extends BaseController
 {
@@ -17,6 +18,12 @@ class KriteriaController extends BaseController
     public function get()
     {
         $data = Kriteria::latest()->get();
+        $data->map(function ($item) {
+            $sub_krtiteria = SubKriteria::where('uuid_kriteria', $item->uuid)->get();
+            $item->subkriteria = $sub_krtiteria;
+
+            return $item;
+        });
         return $this->sendResponse($data, 'Get data success');
     }
 

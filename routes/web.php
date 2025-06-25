@@ -45,6 +45,13 @@ Route::group(['namespace' => 'App\Http\Controllers'], function () {
         Route::post('/kriteria-edit/{params}', 'KriteriaController@edit')->name('kriteria-edit');
         Route::delete('/kriteria-delete/{params}', 'KriteriaController@delete')->name('kriteria-delete');
 
+        Route::get('/sub-kriteria/{params}', 'SubKriteriaController@index')->name('sub-kriteria');
+        Route::get('/sub-kriteria-get/{params}', 'SubKriteriaController@get')->name('sub-kriteria-get');
+        Route::post('/sub-kriteria-add', 'SubKriteriaController@add')->name('sub-kriteria-add');
+        Route::get('/sub-kriteria-show/{params}', 'SubKriteriaController@show')->name('sub-kriteria-show');
+        Route::post('/sub-kriteria-edit/{params}', 'SubKriteriaController@edit')->name('sub-kriteria-edit');
+        Route::delete('/sub-kriteria-delete/{params}', 'SubKriteriaController@delete')->name('sub-kriteria-delete');
+
         Route::get('/mahasiswa', 'MahasiswaController@index')->name('mahasiswa');
         Route::get('/mahasiswa-get/{params}', 'MahasiswaController@get')->name('mahasiswa-get');
         Route::get('/mahasiswa-add', 'MahasiswaController@add')->name('mahasiswa-add');

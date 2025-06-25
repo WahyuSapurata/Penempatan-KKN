@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('penilaians', function (Blueprint $table) {
+        Schema::create('sub_kriterias', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
-            $table->uuid('uuid_mahasiswa');
             $table->uuid('uuid_kriteria');
-            $table->uuid('uuid_subkriteria');
+            $table->string('nama');
+            $table->float('bobot');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('penilaians');
+        Schema::dropIfExists('sub_kriterias');
     }
 };

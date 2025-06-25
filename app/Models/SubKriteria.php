@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
 
-class Penilaian extends Model
+class SubKriteria extends Model
 {
     use HasFactory;
 
-    protected $table = 'penilaians';
+    protected $table = 'sub_kriterias';
     protected $primaryKey = 'id';
     protected $fillable = [
         'uuid',
-        'uuid_mahasiswa',
         'uuid_kriteria',
-        'uuid_subkriteria',
+        'nama',
+        'bobot',
     ];
 
     protected static function boot()

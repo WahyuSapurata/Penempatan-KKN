@@ -137,7 +137,23 @@
                     [1, 'asc']
                 ],
                 processing: true,
-                ajax: '/admin/penilaian-get/' + uuid,
+                // serverSide: true,
+                ajax: {
+                    url: '/admin/penilaian-get/' + uuid,
+                    error: function(xhr, error, thrown) {
+                        const response = xhr.responseJSON;
+
+                        Swal.fire({
+                            title: "Gagal Memproses Data",
+                            text: response && response.message ? response.message :
+                                "Terjadi kesalahan tidak diketahui.",
+                            icon: "warning",
+                            showConfirmButton: true
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                },
                 columns: [{
                         data: null,
                         render: function(data, type, row, meta) {

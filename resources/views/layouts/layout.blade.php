@@ -14,7 +14,7 @@
         content="product mockup template, digital product mockup, marketplace mockup design, sell mockup templates, professional product mockups, digital goods mockup, mockup for creators, product presentation template, high-quality mockup designs, downloadable mockup templates, creative product mockups, mockup marketplace template, sell digital mockups, product display templates, mockup design for entrepreneurs, digital asset mockups, customizable mockup templates, premium mockup designs, mockup for digital products, product visualization templates">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="shortcut icon" href="https://uin-alauddin.ac.id/themes//images/favicon.png" />
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Kilq - Professional Product Mockup Template for Digital Goods" />
@@ -66,9 +66,9 @@
                     <div class="app-sidebar-logo d-flex align-items-center flex-grow-1 flex-lg-grow-0"
                         id="kt_app_sidebar_logo">
                         <a href="" class="full-logo">
-                            <img alt="Logo" src="http://lp2m.uin-alauddin.ac.id/wp-content/uploads/2019/09/LP2M.png"
+                            <img alt="Logo" src="{{ asset('LP2M.png') }}"
                                 class="mw-75 h-sm-auto app-sidebar-logo-default" />
-                            <img alt="Logo" src="https://uin-alauddin.ac.id/themes//images/favicon.png"
+                            <img alt="Logo" src="{{ asset('favicon.png') }}"
                                 class="h-30px app-sidebar-logo-minimize" />
                         </a>
                     </div>

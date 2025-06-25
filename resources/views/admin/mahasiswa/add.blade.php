@@ -103,9 +103,13 @@
                                         <label class="form-label">
                                             {{ ucfirst($krit->nama_kriteria) }} <span class="text-danger">*</span>
                                         </label>
-                                        <input type="number" class="form-control" name="kriteria[{{ $krit->uuid }}]"
-                                            placeholder="Masukkan nilai (1-10)" min="1" max="10"
-                                            oninput="this.value = Math.min(Math.max(this.value, 0), 10)" required>
+                                        <select name="subkriteria[{{ $krit->uuid }}]" class="form-select"
+                                            data-control="select2" data-placeholder="Pilih subkriteria">
+                                            <option value="" disabled selected>-- Pilih --</option>
+                                            @foreach ($krit->subkriteria as $sub)
+                                                <option value="{{ $sub->uuid }}">{{ $sub->nama }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 @endforeach
 

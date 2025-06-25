@@ -6,47 +6,78 @@ use App\Models\Mahasiswa;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\Lokasi;
+use App\Models\SubKriteria;
 
 class PrometheeService
 {
     public function proses($params)
     {
-        // 1. Ambil data mahasiswa, kriteria, dan penilaian
+        // 1. Ambil data
         $mahasiswa = Mahasiswa::where('uuid_angkatan', $params)->get();
         $kriteria = Kriteria::all();
         $penilaian = Penilaian::all();
 
-        // 2. Struktur data penilaian per mahasiswa
-        $dataNilai = [];
-        foreach ($penilaian as $nilai) {
-            $dataNilai[$nilai->uuid_mahasiswa][$nilai->uuid_kriteria] = $nilai->nilai;
+        if ($mahasiswa->isEmpty() || $kriteria->isEmpty() || $penilaian->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Data mahasiswa, kriteria, atau penilaian tidak tersedia.', 'data' => []], 400);
         }
 
-        // 3. Cari nilai min dan max tiap kriteria
-        $minKriteria = [];
-        $maxKriteria = [];
+        // 2. Validasi bobot kriteria
+        $totalBobotKriteria = $kriteria->sum('bobot');
+        if ($totalBobotKriteria != 100) {
+            return response()->json(['success' => false, 'message' => 'Total bobot kriteria harus 100.', 'data' => []], 400);
+        }
+
+        // 3. Ambil semua subkriteria dan kelompokkan berdasarkan kriteria
+        $subkriteriaList = SubKriteria::all()->keyBy('uuid');
+        $subkriteria = $subkriteriaList->groupBy('uuid_kriteria');
+
+        // 4. Susun data nilai berdasarkan bobot subkriteria
+        $dataNilai = [];
+
+        foreach ($penilaian as $p) {
+            if (isset($subkriteriaList[$p->uuid_subkriteria])) {
+                $sub = $subkriteriaList[$p->uuid_subkriteria];
+                $kriteriaUuid = $sub->uuid_kriteria;
+                $dataNilai[$p->uuid_mahasiswa][$kriteriaUuid][] = $sub->bobot;
+            }
+        }
+
+        // Hitung nilai rata-rata per kriteria
+        foreach ($dataNilai as $mhsUuid => $kriteriaArray) {
+            foreach ($kriteriaArray as $kriteriaUuid => $bobotList) {
+                $dataNilai[$mhsUuid][$kriteriaUuid] = count($bobotList) ? array_sum($bobotList) / count($bobotList) : 0;
+            }
+        }
+
+        // 5. Hitung min dan max tiap subkriteria
+        // Hitung min dan max per kriteria
+        $minSub = [];
+        $maxSub = [];
+
         foreach ($kriteria as $k) {
-            $nilaiKriteria = [];
-            foreach ($dataNilai as $nilaiMhs) {
-                if (isset($nilaiMhs[$k->uuid])) {
-                    $nilaiKriteria[] = $nilaiMhs[$k->uuid];
+            $nilaiList = [];
+
+            foreach ($dataNilai as $mhs) {
+                if (isset($mhs[$k->uuid])) {
+                    $nilaiList[] = $mhs[$k->uuid];
                 }
             }
-            $minKriteria[$k->uuid] = min($nilaiKriteria);
-            $maxKriteria[$k->uuid] = max($nilaiKriteria);
+
+            $minSub[$k->uuid] = count($nilaiList) ? min($nilaiList) : 0;
+            $maxSub[$k->uuid] = count($nilaiList) ? max($nilaiList) : 1;
         }
 
-        // 4. Normalisasi nilai
+        // 6. Normalisasi dan total per kriteria
         $normalisasi = [];
+
         foreach ($dataNilai as $uuid_mhs => $nilaiMhs) {
             foreach ($kriteria as $k) {
-                $min = $minKriteria[$k->uuid];
-                $max = $maxKriteria[$k->uuid];
                 $nilai = $nilaiMhs[$k->uuid] ?? 0;
+                $min = $minSub[$k->uuid];
+                $max = $maxSub[$k->uuid];
 
-                $jenis = strtolower($k->jenis); // agar 'Benefit'/'Cost' bisa dimasukkan bebas kapital
                 $normal = ($max == $min) ? 0 : (
-                    $jenis === 'benefit'
+                    strtolower($k->jenis) === 'benefit'
                     ? ($nilai - $min) / ($max - $min)
                     : ($max - $nilai) / ($max - $min)
                 );
@@ -55,61 +86,55 @@ class PrometheeService
             }
         }
 
-        // 5. Preferensi antar mahasiswa
+        // 6. Hitung preferensi
         $preferensi = [];
         $uuids = array_keys($normalisasi);
         foreach ($uuids as $uuidA) {
             foreach ($uuids as $uuidB) {
                 if ($uuidA == $uuidB) continue;
-
                 $pref = 0;
                 foreach ($kriteria as $k) {
                     $diff = $normalisasi[$uuidA][$k->uuid] - $normalisasi[$uuidB][$k->uuid];
-                    $p = max(0, $diff);
-                    $pref += $p * ($k->bobot / 10);
+                    $pref += max(0, $diff) * ($k->bobot / 100);
                 }
-
                 $preferensi[$uuidA][$uuidB] = $pref;
             }
         }
 
-        // 6. Hitung Leaving Flow, Entering Flow, Net Flow
+        // 7. Net flow
         $netFlow = [];
-        $leavingFlow = [];
-        $enteringFlow = [];
         foreach ($uuids as $uuidA) {
-            $sumLeaving = 0;
-            $sumEntering = 0;
+            $leaving = $entering = 0;
             foreach ($uuids as $uuidB) {
                 if ($uuidA == $uuidB) continue;
-                $sumLeaving += $preferensi[$uuidA][$uuidB] ?? 0;
-                $sumEntering += $preferensi[$uuidB][$uuidA] ?? 0;
+                $leaving += $preferensi[$uuidA][$uuidB] ?? 0;
+                $entering += $preferensi[$uuidB][$uuidA] ?? 0;
             }
-
             $n = count($uuids) - 1;
-            $leavingFlow[$uuidA] = $sumLeaving / $n;
-            $enteringFlow[$uuidA] = $sumEntering / $n;
-            $netFlow[$uuidA] = $leavingFlow[$uuidA] - $enteringFlow[$uuidA];
+            $netFlow[$uuidA] = $n > 0 ? ($leaving - $entering) / $n : 0;
         }
 
-        // 7. Ranking berdasarkan Net Flow
+        // 8. Ranking
         arsort($netFlow);
         $ranking = [];
         foreach ($netFlow as $uuid => $nilai) {
             $mhs = $mahasiswa->firstWhere('uuid', $uuid);
             $ranking[] = [
-                'uuid' => $uuid ?? '',
-                'nama' => $mhs->nama ?? '',
-                'jurusan' => $mhs->jurusan ?? '',
-                'nim' => $mhs->nim ?? '',
-                'net_flow' => $nilai ?? '',
+                'uuid' => $uuid,
+                'nama' => $mhs->nama ?? '-',
+                'jurusan' => $mhs->jurusan ?? '-',
+                'nim' => $mhs->nim ?? '-',
+                'net_flow' => $nilai,
             ];
         }
 
-        // 8. Alokasi lokasi KKN dengan nama lokasi
-        $lokasiList = Lokasi::orderBy('jarak')->get(); // Lokasi harus punya: uuid, nama, kuota
-        $terisi = [];
+        // 9. Alokasi Lokasi
+        $lokasiList = Lokasi::orderBy('jarak')->get();
+        if ($lokasiList->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Data lokasi tidak tersedia.', 'data' => []], 400);
+        }
 
+        $terisi = [];
         foreach ($lokasiList as $lokasi) {
             $terisi[$lokasi->uuid] = [
                 'uuid' => $lokasi->uuid,
@@ -123,14 +148,10 @@ class PrometheeService
         foreach ($ranking as $mhs) {
             foreach ($lokasiList as $lokasi) {
                 $lok = &$terisi[$lokasi->uuid];
-
                 $jumlahJurusan = $lok['jurusan_count'][$mhs['jurusan']] ?? 0;
 
-                if (
-                    count($lok['mahasiswa']) < $lok['kuota'] &&
-                    $jumlahJurusan < 2
-                ) {
-                    $mhs['nama_lokasi'] = $lok['nama_lokasi']; // Tambahkan nama lokasi ke mahasiswa
+                if (count($lok['mahasiswa']) < $lok['kuota'] && $jumlahJurusan < 2) {
+                    $mhs['nama_lokasi'] = $lok['nama_lokasi'];
                     $lok['mahasiswa'][] = $mhs;
                     $lok['jurusan_count'][$mhs['jurusan']] = $jumlahJurusan + 1;
                     break;
