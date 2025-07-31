@@ -17,10 +17,12 @@ return new class extends Migration
             $table->uuid('uuid_angkatan');
             $table->string('nim');
             $table->string('nama');
-            $table->string('jenis_kelamin');
-            $table->string('fakultas');
-            $table->string('jurusan');
-            $table->string('alamat');
+            $table->string('semester');
+            $table->string('sks');
+            $table->string('status');
+            $table->string('kelakuan_baik');
+            $table->string('pernyataan_kesiapan');
+            $table->string('transkrip');
             $table->timestamps();
         });
     }

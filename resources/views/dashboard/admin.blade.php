@@ -4,32 +4,57 @@
         <!--begin::Container-->
         <div id="kt_content_container" class="container">
             <div class="row">
-                <!--Begin Admin-->
-                <div class="col-xl-12">
-                    <!--begin::Engage Widget 11-->
-                    <div class="card card-custom card-stretch gutter-b">
-                        <div class="card-body d-flex p-0">
-                            <div class="flex-grow-1 p-7 card-rounded flex-grow-1 bgi-no-repeat"
-                                style="background-position: calc(100% + 0.5rem) bottom;
-                                    background-size: 25% auto;
-                                    background-image: url(https://taurungka.makassarkota.go.id/admin/assets/media/svg/illustrations/Group-131.png)">
-                                <h2 class="text-dark font-weight-bolder">
-                                    Selamat Datang !
-                                </h2>
-                                <h3 class="text-dark pb-5 font-weight-bolder">
-
-                                </h3>
-                                <p class="text-dark-50 pb-5 font-size-h5">
-                                    Ini adalah halaman dashboard admin website.
-                                    <br />Segala sesuatu konten yang ada akan
-                                    <br />diinput lewat dashboard admin anda.
-                                </p>
+                <div class="col-lg-3 col-6 mb-4">
+                    <div class="card text-white bg-info">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="text-white">{{ $angkatan ? $angkatan->angkatan : 'Non Aktiv' }}</h3>
+                                <p class="mb-0">Angkatan</p>
                             </div>
+                            <i class="bi bi-calendar3 fs-1 text-white"></i>
                         </div>
                     </div>
-                    <!--end::Engage Widget 11-->
+                </div>
+
+                <div class="col-lg-3 col-6 mb-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="text-white">{{ $mahasiswa->where('status', 'Belum Diverifikasi')->count() }} <sup
+                                        style="font-size: 13px">Mahasiswa</sup></h3>
+                                <p class="mb-0">Belum Aprove</p>
+                            </div>
+                            <i class="bi bi-person-workspace fs-1 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-6 mb-4">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="text-white">{{ $mahasiswa->where('status', 'Terkonfirmasi')->count() }} <sup
+                                        style="font-size: 13px">Mahasiswa</sup></h3>
+                                <p class="mb-0">Terkonfimasi</p>
+                            </div>
+                            <i class="bi bi-people-fill fs-1 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-6 mb-4">
+                    <div class="card text-white bg-danger">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="text-white">{{ $lokasi }}</h3>
+                                <p class="mb-0">Total Lokasi</p>
+                            </div>
+                            <i class="bi bi-pin-map-fill fs-1 text-white"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
         <!--end::Container-->
     </div>

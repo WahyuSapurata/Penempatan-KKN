@@ -24,24 +24,26 @@ class StoreMahasiswaRequest extends FormRequest
         return [
             'nim' => 'required',
             'nama' => 'required',
-            'jenis_kelamin' => 'required',
-            'fakultas' => 'required',
-            'jurusan' => 'required',
-            'alamat' => 'required',
-            'uuid_angkatan' => 'required',
+            'semester' => 'required',
+            'sks' => 'required|integer|min:110',
+            'transkrip' => 'required',
+            'kelakuan_baik' => 'required',
+            'pernyataan_kesiapan' => 'required',
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
-            'nim.required' => 'Kolom nim harus di isi.',
-            'nama.required' => 'Kolom nama harus di isi.',
-            'jenis_kelamin.required' => 'Kolom jenis kelamin harus di isi.',
-            'fakultas.required' => 'Kolom fakultas harus di isi.',
-            'jurusan.required' => 'Kolom jurusan harus di isi.',
-            'alamat.required' => 'Kolom alamat harus di isi.',
-            'uuid_angkatan.required' => 'Kolom angkatan harus di isi.',
+            'nim.required' => 'Kolom NIM harus diisi.',
+            'nama.required' => 'Kolom nama harus diisi.',
+            'semester.required' => 'Kolom semester harus diisi.',
+            'sks.required' => 'Kolom SKS harus diisi.',
+            'sks.integer' => 'Kolom SKS harus berupa angka.',
+            'sks.min' => 'SKS minimal harus 110.',
+            'transkrip.required' => 'Kolom transkrip harus diisi.',
+            'kelakuan_baik.required' => 'Kolom kelakuan baik harus diisi.',
+            'pernyataan_kesiapan.required' => 'Kolom pernyataan kesiapan harus diisi.',
         ];
     }
 }

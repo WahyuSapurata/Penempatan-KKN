@@ -31,7 +31,6 @@
                                             <th>No</th>
                                             <th>Lokasi</th>
                                             <th>Kuota</th>
-                                            <th>Jarak</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -107,12 +106,6 @@
                         <label class="form-label">Kuota</label>
                         <input type="number" id="kuota" class="form-control" name="kuota">
                         <small class="text-danger kuota_error"></small>
-                    </div>
-
-                    <div class="mb-10">
-                        <label class="form-label">Jarak</label>
-                        <input type="number" id="jarak" class="form-control" name="jarak">
-                        <small class="text-danger jarak_error"></small>
                     </div>
 
                     <div class="separator separator-dashed mt-8 mb-5"></div>
@@ -197,9 +190,6 @@
                     className: 'text-center',
                 }, {
                     data: 'kuota',
-                    className: 'text-center',
-                }, {
-                    data: 'jarak',
                     className: 'text-center',
                 }, {
                     data: 'uuid',

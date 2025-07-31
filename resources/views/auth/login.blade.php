@@ -108,12 +108,13 @@
                             </div>
                             <!--end::Input group=-->
                             <!--begin::Submit button-->
-                            <div class="d-grid">
+                            <div class="d-grid gap-3">
                                 <button type="submit" class="btn btn-primary">
                                     <!--begin::Indicator label-->
                                     <span class="indicator-label">Login</span>
                                     <!--end::Indicator label-->
                                 </button>
+                                <a class="btn btn-success" href="{{ route('register') }}">Daftar</a>
                             </div>
                             <!--end::Submit button-->
                         </form>

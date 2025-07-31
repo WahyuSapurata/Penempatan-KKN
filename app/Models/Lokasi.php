@@ -14,9 +14,9 @@ class Lokasi extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'uuid',
+        'uuid_angkatan',
         'lokasi',
         'kuota',
-        'jarak',
     ];
 
     protected static function boot()

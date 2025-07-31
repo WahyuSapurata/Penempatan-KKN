@@ -30,6 +30,7 @@
                                         <tr class="fw-bolder fs-6 text-gray-800">
                                             <th>No</th>
                                             <th>Angkatan</th>
+                                            <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -99,6 +100,17 @@
                         <label class="form-label">Angkatan</label>
                         <input type="text" id="angkatan" class="form-control" name="angkatan">
                         <small class="text-danger angkatan_error"></small>
+                    </div>
+
+                    <div class="mb-10">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select" data-control="select2"
+                            data-placeholder="Pilih jenis inputan">
+                            <option value="">Pilih jenis inputan</option>
+                            <option value="Aktiv">Aktiv</option>
+                            <option value="Non Aktiv">Non Aktiv</option>
+                        </select>
+                        <small class="text-danger status_error"></small>
                     </div>
 
                     <div class="separator separator-dashed mt-8 mb-5"></div>
@@ -180,6 +192,9 @@
                     }
                 }, {
                     data: 'angkatan',
+                    className: 'text-center',
+                }, {
+                    data: 'status',
                     className: 'text-center',
                 }, {
                     data: 'uuid',

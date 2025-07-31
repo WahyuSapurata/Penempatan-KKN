@@ -389,6 +389,16 @@ class Control {
                 $.each(xhr.responseJSON["errors"], function (key, value) {
                     $(`.${key}_error`).html(value);
                 });
+
+                if (xhr.responseJSON.data) {
+                    swal.fire({
+                        title: xhr.responseJSON.message,
+                        text: xhr.responseJSON.data,
+                        icon: "warning",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
             },
         });
     }
@@ -565,9 +575,10 @@ class Control {
         });
     }
 
-    ajaxDelete(url, label) {
+    ajaxDelete(url, label, callback = null) {
         let token = $("meta[name='csrf-token']").attr("content");
         let table_ = this.table;
+
         Swal.fire({
             title: `Apakah anda yakin akan menghapus data ${label} ?`,
             text: "Anda tidak akan dapat mengembalikan ini!",
@@ -582,24 +593,25 @@ class Control {
                     url: url,
                     type: "DELETE",
                     data: {
-                        id: $(this).attr("data-id"),
                         _token: token,
                     },
                     success: function () {
-                        swal
-                            .fire({
-                                title: "Menghapus!",
-                                text: "Data Anda telah dihapus.",
-                                icon: "success",
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                        table_.DataTable().ajax.reload();
-                    },
+                        swal.fire({
+                            title: "Menghapus!",
+                            text: "Data Anda telah dihapus.",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function () {
+                            table_.DataTable().ajax.reload();
+                            if (callback) callback(); // Panggil getBobot jika dikirim
+                        });
+                    }
                 });
             }
         });
     }
+
 
     push_select(url, element, type) {
         let data_nama;

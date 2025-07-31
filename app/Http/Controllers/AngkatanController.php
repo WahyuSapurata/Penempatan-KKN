@@ -22,15 +22,28 @@ class AngkatanController extends BaseController
 
     public function add(StoreAngkatanRequest $storeAngkatanRequest)
     {
+        // Cek jika request status adalah 'Aktiv'
+        if ($storeAngkatanRequest->status === 'Aktiv') {
+            $angkatanAktif = Angkatan::where('status', 'Aktiv')->first();
+            if ($angkatanAktif) {
+                return $this->sendError(
+                    'error',
+                    'Angkatan ' . $angkatanAktif->angkatan . ' statusnya aktiv, hanya satu angkatan yang boleh aktiv.',
+                    400
+                );
+            }
+        }
+
         $data = array();
         try {
             $data = new Angkatan();
             $data->angkatan = $storeAngkatanRequest->angkatan;
+            $data->status = $storeAngkatanRequest->status;
             $data->save();
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), $e->getMessage(), 400);
         }
-        return $this->sendResponse($data, 'Add event success');
+        return $this->sendResponse($data, 'Add data success');
     }
 
     public function show($params)
@@ -47,13 +60,26 @@ class AngkatanController extends BaseController
     public function edit(StoreAngkatanRequest $storeAngkatanRequest, $params)
     {
         $data = Angkatan::where('uuid', $params)->first();
+
+        if ($storeAngkatanRequest->status === 'Aktiv') {
+            $angkatanAktif = Angkatan::where('status', 'Aktiv')->first();
+            if ($angkatanAktif) {
+                return $this->sendError(
+                    'error',
+                    'Angkatan ' . $angkatanAktif->angkatan . ' statusnya aktiv, hanya satu angkatan yang boleh aktiv.',
+                    400
+                );
+            }
+        }
+
         try {
             $data->angkatan = $storeAngkatanRequest->angkatan;
+            $data->status = $storeAngkatanRequest->status;
             $data->save();
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), $e->getMessage(), 400);
         }
-        return $this->sendResponse($data, 'Add event success');
+        return $this->sendResponse($data, 'Add data success');
     }
 
     public function delete($params)
@@ -65,6 +91,6 @@ class AngkatanController extends BaseController
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), $e->getMessage(), 400);
         }
-        return $this->sendResponse($data, 'Delete Event success');
+        return $this->sendResponse($data, 'Delete data success');
     }
 }

@@ -4,23 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMahasiswaRequest;
 use App\Http\Requests\UpdateMahasiswaRequest;
+use App\Models\Angkatan;
 use App\Models\Kriteria;
 use App\Models\Mahasiswa;
 use App\Models\Penilaian;
 use App\Models\SubKriteria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class MahasiswaController extends BaseController
 {
     public function index()
     {
         $module = 'Mahasiswa';
-        return view('admin.mahasiswa.index', compact('module'));
+        $angkatan = Angkatan::where('status', 'Aktiv')->first();
+        if (!$angkatan) {
+            return redirect()->route('admin.angkatan')->with('failed', 'Angkatan aktiv belum di tentukan');
+        }
+        return view('admin.mahasiswa.index', compact('module', 'angkatan'));
     }
 
-    public function get($params)
+    public function get()
     {
-        $mahasiswa = Mahasiswa::where('uuid_angkatan', $params)->get();
+        $angkatan = Angkatan::where('status', 'Aktiv')->first();
+        $mahasiswa = Mahasiswa::where('uuid_angkatan', $angkatan->uuid)->latest()->get();
         return $this->sendResponse($mahasiswa, 'Get data success');
     }
 
@@ -39,14 +46,38 @@ class MahasiswaController extends BaseController
 
     public function store(StoreMahasiswaRequest $store_mahasiswa_request)
     {
+        $newTranskrip = '';
+        $newKelakuan = '';
+        $newPernyataan = '';
+        if ($store_mahasiswa_request->file('transkrip')) {
+            $extension = $store_mahasiswa_request->file('transkrip')->extension();
+            $newTranskrip = 'transkrip' . '-' . now()->timestamp . '.' . $extension;
+            $store_mahasiswa_request->file('transkrip')->storeAs('public/mahasiswa', $newTranskrip);
+        }
+
+        if ($store_mahasiswa_request->file('kelakuan_baik')) {
+            $extension = $store_mahasiswa_request->file('kelakuan_baik')->extension();
+            $newKelakuan = 'kelakuan_baik' . '-' . now()->timestamp . '.' . $extension;
+            $store_mahasiswa_request->file('kelakuan_baik')->storeAs('public/mahasiswa', $newKelakuan);
+        }
+
+        if ($store_mahasiswa_request->file('pernyataan_kesiapan')) {
+            $extension = $store_mahasiswa_request->file('pernyataan_kesiapan')->extension();
+            $newPernyataan = 'pernyataan_kesiapan' . '-' . now()->timestamp . '.' . $extension;
+            $store_mahasiswa_request->file('pernyataan_kesiapan')->storeAs('public/mahasiswa', $newPernyataan);
+        }
+
+        $angkatan = Angkatan::where('status', 'Aktiv')->first();
         $mahasiswa = Mahasiswa::create([
+            'uuid_angkatan' => $angkatan->uuid,
             'nim' => $store_mahasiswa_request->nim,
             'nama' => $store_mahasiswa_request->nama,
-            'jenis_kelamin' => $store_mahasiswa_request->jenis_kelamin,
-            'fakultas' => $store_mahasiswa_request->fakultas,
-            'jurusan' => $store_mahasiswa_request->jurusan,
-            'alamat' => $store_mahasiswa_request->alamat,
-            'uuid_angkatan' => $store_mahasiswa_request->uuid_angkatan,
+            'semester' => $store_mahasiswa_request->semester,
+            'sks' => $store_mahasiswa_request->sks,
+            'status' => 'Belum Diverifikasi',
+            'transkrip' => $newTranskrip,
+            'kelakuan_baik' => $newKelakuan,
+            'pernyataan_kesiapan' => $newPernyataan,
         ]);
 
         foreach ($store_mahasiswa_request->subkriteria ?? [] as $kriteria_uuid => $uuid_subkriteria) {
@@ -96,20 +127,63 @@ class MahasiswaController extends BaseController
         ));
     }
 
-    public function update(StoreMahasiswaRequest $update_mahasiswa_request, $params)
+    public function update(UpdateMahasiswaRequest $update_mahasiswa_request, $params)
     {
         // Cari data mahasiswa
         $mahasiswa = Mahasiswa::where('uuid', $params)->firstOrFail();
 
+        $newTranskrip = $mahasiswa->transkrip;
+        $newKelakuan = $mahasiswa->kelakuan_baik;
+        $newPernyataan = $mahasiswa->pernyataan_kesiapan;
+
+        $oldTranskripPath = public_path('/public/mahasiswa/' . $mahasiswa->transkrip);
+        $oldKelakuanPath = public_path('/public/mahasiswa/' . $mahasiswa->kelakuan_baik);
+        $oldPernyataanPath = public_path('/public/mahasiswa/' . $mahasiswa->pernyataan_kesiapan);
+
+        if ($update_mahasiswa_request->file('transkrip')) {
+            $extension = $update_mahasiswa_request->file('transkrip')->extension();
+            $newTranskrip = 'transkrip' . '-' . now()->timestamp . '.' . $extension;
+            $update_mahasiswa_request->file('transkrip')->storeAs('public/mahasiswa', $newTranskrip);
+
+            // Hapus foto lama
+            if (File::exists($oldTranskripPath)) {
+                File::delete($oldTranskripPath);
+            }
+        }
+
+        if ($update_mahasiswa_request->file('kelakuan_baik')) {
+            $extension = $update_mahasiswa_request->file('kelakuan_baik')->extension();
+            $newKelakuan = 'kelakuan_baik' . '-' . now()->timestamp . '.' . $extension;
+            $update_mahasiswa_request->file('kelakuan_baik')->storeAs('public/mahasiswa', $newKelakuan);
+
+            // Hapus foto lama
+            if (File::exists($oldKelakuanPath)) {
+                File::delete($oldKelakuanPath);
+            }
+        }
+
+        if ($update_mahasiswa_request->file('pernyataan_kesiapan')) {
+            $extension = $update_mahasiswa_request->file('pernyataan_kesiapan')->extension();
+            $newPernyataan = 'pernyataan_kesiapan' . '-' . now()->timestamp . '.' . $extension;
+            $update_mahasiswa_request->file('pernyataan_kesiapan')->storeAs('public/mahasiswa', $newPernyataan);
+
+            // Hapus foto lama
+            if (File::exists($oldPernyataanPath)) {
+                File::delete($oldPernyataanPath);
+            }
+        }
+
         // Update data mahasiswa
+        $angkatan = Angkatan::where('status', 'Aktiv')->first();
         $mahasiswa->update([
+            'uuid_angkatan' => $angkatan->uuid,
             'nim' => $update_mahasiswa_request->nim,
             'nama' => $update_mahasiswa_request->nama,
-            'jenis_kelamin' => $update_mahasiswa_request->jenis_kelamin,
-            'fakultas' => $update_mahasiswa_request->fakultas,
-            'jurusan' => $update_mahasiswa_request->jurusan,
-            'alamat' => $update_mahasiswa_request->alamat,
-            'uuid_angkatan' => $update_mahasiswa_request->uuid_angkatan,
+            'semester' => $update_mahasiswa_request->semester,
+            'sks' => $update_mahasiswa_request->sks,
+            'transkrip' => $newTranskrip,
+            'kelakuan_baik' => $newKelakuan,
+            'pernyataan_kesiapan' => $newPernyataan,
         ]);
 
         // Update penilaian per kriteria berdasarkan input subkriteria
@@ -132,6 +206,20 @@ class MahasiswaController extends BaseController
     {
         $mahasiswa = Mahasiswa::where('uuid', $params)->first();
 
+        $oldTranskripPath = public_path('/public/mahasiswa/' . $mahasiswa->transkrip);
+        $oldKelakuanPath = public_path('/public/mahasiswa/' . $mahasiswa->kelakuan_baik);
+        $oldPernyataanPath = public_path('/public/mahasiswa/' . $mahasiswa->pernyataan_kesiapan);
+
+        if (File::exists($oldTranskripPath)) {
+            File::delete($oldTranskripPath);
+        }
+        if (File::exists($oldKelakuanPath)) {
+            File::delete($oldKelakuanPath);
+        }
+        if (File::exists($oldPernyataanPath)) {
+            File::delete($oldPernyataanPath);
+        }
+
         if ($mahasiswa) {
             // Hapus semua penilaian yang berkaitan dengan mahasiswa ini
             Penilaian::where('uuid_mahasiswa', $params)->delete();
@@ -143,5 +231,32 @@ class MahasiswaController extends BaseController
         } else {
             return $this->sendError('Data not found');
         }
+    }
+
+    public function konfirmasi($params)
+    {
+        try {
+            $data = Mahasiswa::where('uuid', $params)->first();
+            $data->status = "Terkonfirmasi";
+            $data->save();
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), $e->getMessage(), 400);
+        }
+
+        return $this->sendResponse($data, 'Update data success');
+    }
+
+    // daftar user
+    public function register_mahasiswa()
+    {
+        $module = 'Pendaftaran Mahasiswa';
+        $kriteria = Kriteria::all();
+        $kriteria->map(function ($item) {
+            $sub_krtiteria = SubKriteria::where('uuid_kriteria', $item->uuid)->get();
+            $item->subkriteria = $sub_krtiteria;
+
+            return $item;
+        });
+        return view('mahasiswa.index', compact('module', 'kriteria'));
     }
 }

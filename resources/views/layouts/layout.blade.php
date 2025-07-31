@@ -250,6 +250,30 @@
     @yield('script')
     <!--end::Page Custom Javascript-->
     <!--end::Javascript-->
+
+    @if ($message = Session::get('failed'))
+        <script>
+            swal.fire({
+                title: "Eror",
+                text: "{{ $message }}",
+                icon: "warning",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        </script>
+    @endif
+
+    @if ($message = Session::get('success'))
+        <script>
+            swal.fire({
+                title: "Sukses",
+                text: "{{ $message }}",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        </script>
+    @endif
 </body>
 <!--end::Body-->
 

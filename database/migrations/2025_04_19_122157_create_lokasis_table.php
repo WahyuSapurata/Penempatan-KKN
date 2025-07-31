@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('lokasis', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
+            $table->uuid('uuid_angkatan');
             $table->string('lokasi');
             $table->integer('kuota');
-            $table->float('jarak')->nullable(); // tambahkan ini
             $table->timestamps();
         });
     }

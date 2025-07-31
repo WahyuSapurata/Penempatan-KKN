@@ -14,7 +14,8 @@ class Angkatan extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'uuid',
-        'angkatan'
+        'angkatan',
+        'status',
     ];
 
     protected static function boot()

@@ -30,24 +30,19 @@
         <div id="kt_content_container" class="container">
             <div class="row">
 
-                <div class="row justify-content-center">
-                    <div class="card mb-5 py-3 w-50">
-                        <form>
-                            <div class="mb-10">
-                                <label class="form-label">Angkatan</label>
-                                <select name="uuid_angkatan" class="form-select" data-control="select2" id="form_select"
-                                    data-placeholder="Pilih jenis inputan">
-                                </select>
-                            </div>
-
-                            <div class="d-flex my-5">
-                                <button class="btn btn-primary btn-sm " id="button-cari"></i>Proses Data</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
                 <div class="card">
+                    <div class="card-header py-5">
+                        <div class="row w-100">
+                            @foreach ($jumlahPerLokasi as $lokasi => $jumlah)
+                                <div class="col-sm-6 col-md-3 mb-3">
+                                    <div class="d-flex gap-3 align-items-center">
+                                        <span class="font-weight-bold">{{ $lokasi }}</span>
+                                        <span class="badge badge-primary badge-pill">{{ $jumlah }} mahasiswa</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                     <div class="card-body p-0">
                         <div class="container">
                             <div class="py-5 table-responsive">
@@ -63,9 +58,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td colspan="5" class="text-center">Silahkan pilih angkatan</td>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -83,41 +75,9 @@
     <script>
         let control = new Control();
 
-        $(document).on('click', '#button-cari', function(e) {
-            e.preventDefault();
-            if ($('#form_select').val() == null || $('#form_select').val() == '') {
-                Swal.fire({
-                    text: "Silahkan pilih angkatan",
-                    icon: "warning",
-                    buttonsStyling: false,
-                    confirmButtonText: "Ok",
-                    customClass: {
-                        confirmButton: "btn btn-primary"
-                    }
-                });
-                return;
-            }
-            let uuid = $('#form_select').val();
-
-            initDatatable(uuid);
-        })
-
         $('#export-excel').click(function(e) {
             e.preventDefault();
-            if ($('#form_select').val() == null || $('#form_select').val() == '') {
-                Swal.fire({
-                    text: "Silahkan pilih angkatan",
-                    icon: "warning",
-                    buttonsStyling: false,
-                    confirmButtonText: "Ok",
-                    customClass: {
-                        confirmButton: "btn btn-primary"
-                    }
-                });
-                return;
-            }
-            let uuid = $('#form_select').val();
-            window.open(`/admin/penilaian-export/${uuid}`, "_blank");
+            window.open(`/admin/penilaian-export`, "_blank");
         });
 
         $(document).on('keyup', '#search_', function(e) {
@@ -125,7 +85,7 @@
             control.searchTable(this.value);
         })
 
-        const initDatatable = async (uuid) => {
+        const initDatatable = async () => {
             if ($.fn.DataTable.isDataTable('#kt_table_data')) {
                 $('#kt_table_data').DataTable().clear().destroy();
             }
@@ -139,7 +99,7 @@
                 processing: true,
                 // serverSide: true,
                 ajax: {
-                    url: '/admin/penilaian-get/' + uuid,
+                    url: '/admin/penilaian-get',
                     error: function(xhr, error, thrown) {
                         const response = xhr.responseJSON;
 
@@ -212,7 +172,7 @@
 
 
         $(function() {
-            control.push_select_angkatan('/admin/angkatan-get', '#form_select');
+            initDatatable();
         });
     </script>
 @endsection

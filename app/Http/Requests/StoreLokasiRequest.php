@@ -24,7 +24,6 @@ class StoreLokasiRequest extends FormRequest
         return [
             'lokasi' => 'required',
             'kuota' => 'required',
-            'jarak' => 'required',
         ];
     }
 
@@ -33,7 +32,6 @@ class StoreLokasiRequest extends FormRequest
         return [
             'lokasi.required' => 'Kolom lokasi harus di isi.',
             'kuota.required' => 'Kolom kuota harus di isi.',
-            'jarak.required' => 'Kolom jarak harus di isi.',
         ];
     }
 }

@@ -52,55 +52,40 @@
                                     <small class="text-danger nim_error"></small>
                                 </div>
 
-                                <div class="mb-4">
-                                    <label class="form-label d-block">Jenis Kelamin</label>
-
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio"
-                                            {{ $mahasiswa->jenis_kelamin == 'Laki-laki' ? 'checked' : '' }}
-                                            name="jenis_kelamin" id="jenisLaki" value="Laki-laki" required>
-                                        <label class="form-check-label" for="jenisLaki">Laki-laki</label>
-                                    </div>
-
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio"
-                                            {{ $mahasiswa->jenis_kelamin == 'Perempuan' ? 'checked' : '' }}
-                                            name="jenis_kelamin" id="jenisPerempuan" value="Perempuan" required>
-                                        <label class="form-check-label" for="jenisPerempuan">Perempuan</label>
-                                    </div>
-
-                                    <small class="text-danger jenis_kelamin_error"></small>
+                                <div class="mb-10">
+                                    <label class="form-label">Semester <span class="text-danger">*</span></label>
+                                    <input type="text" id="semester" class="form-control"
+                                        value="{{ $mahasiswa->semester }}" name="semester">
+                                    <small class="text-danger semester_error"></small>
                                 </div>
 
                                 <div class="mb-10">
-                                    <label class="form-label">Fakultas</label>
-                                    <select name="fakultas" class="form-select" data-control="select2"
-                                        id="from_select_fakultas" data-placeholder="Pilih jenis inputan">
-                                    </select>
-                                    <small class="text-danger fakultas_error"></small>
+                                    <label class="form-label">SKS <span class="text-danger">*</span></label>
+                                    <input type="number" id="sks" class="form-control" value="{{ $mahasiswa->sks }}"
+                                        name="sks">
+                                    <small class="text-danger sks_error"></small>
                                 </div>
 
                                 <div class="mb-10">
-                                    <label class="form-label">Jurusan</label>
-                                    <select name="jurusan" class="form-select" data-control="select2"
-                                        id="from_select_jurusan" data-placeholder="Pilih jenis inputan">
-                                    </select>
-                                    <small class="text-danger jurusan_error"></small>
+                                    <label class="form-label">Transkrip <span class="text-danger">*</span></label>
+                                    <input type="file" accept=".pdf" id="transkrip" class="form-control"
+                                        name="transkrip">
+                                    <small class="text-danger transkrip_error"></small>
                                 </div>
 
                                 <div class="mb-10">
-                                    <label class="form-label">Alamat</label>
-                                    <input type="text" id="alamat" class="form-control"
-                                        value="{{ $mahasiswa->alamat }}" name="alamat">
-                                    <small class="text-danger alamat_error"></small>
+                                    <label class="form-label">Surat Kelakuan Baik <span class="text-danger">*</span></label>
+                                    <input type="file" accept=".pdf" id="kelakuan_baik" class="form-control"
+                                        name="kelakuan_baik">
+                                    <small class="text-danger kelakuan_baik_error"></small>
                                 </div>
 
                                 <div class="mb-10">
-                                    <label class="form-label">Angkatan</label>
-                                    <select name="uuid_angkatan" class="form-select" data-control="select2"
-                                        id="from_select_angkatan" data-placeholder="Pilih jenis inputan">
-                                    </select>
-                                    <small class="text-danger angkatan_error"></small>
+                                    <label class="form-label">Surat Pernyataan Kesiapan <span
+                                            class="text-danger">*</span></label>
+                                    <input type="file" accept=".pdf" id="pernyataan_kesiapan" class="form-control"
+                                        name="pernyataan_kesiapan">
+                                    <small class="text-danger pernyataan_kesiapan_error"></small>
                                 </div>
 
                                 @foreach ($kriteria as $krit)
@@ -108,16 +93,54 @@
                                         <label class="form-label">
                                             {{ ucfirst($krit->nama_kriteria) }} <span class="text-danger">*</span>
                                         </label>
-                                        <select name="subkriteria[{{ $krit->uuid }}]" class="form-select"
-                                            data-control="select2" data-placeholder="Pilih subkriteria" required>
-                                            <option value="" disabled>-- Pilih --</option>
-                                            @foreach ($krit->subkriteria as $sub)
-                                                <option value="{{ $sub->uuid }}"
-                                                    {{ old('subkriteria.' . $krit->uuid, $subkriteria_terpilih[$krit->uuid] ?? '') == $sub->uuid ? 'selected' : '' }}>
-                                                    {{ $sub->nama }}
+
+                                        @if ($krit->nama_kriteria == 'Fakultas')
+                                            <select name="subkriteria[{{ $krit->uuid }}]"
+                                                class="form-select fakultas-select" data-control="select2" required
+                                                data-placeholder="Pilih Fakultas">
+                                                <option value="" disabled
+                                                    {{ empty(old('subkriteria.' . $krit->uuid)) ? 'selected' : '' }}>--
+                                                    Pilih --</option>
+
+                                                @foreach ($krit->subkriteria as $sub)
+                                                    <option value="{{ $sub->uuid }}" data-nama="{{ trim($sub->nama) }}"
+                                                        {{ old('subkriteria.' . $krit->uuid, $subkriteria_terpilih[$krit->uuid] ?? '') == $sub->uuid ? 'selected' : '' }}>
+                                                        {{ $sub->nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @elseif ($krit->nama_kriteria == 'Jurusan')
+                                            <select name="subkriteria[{{ $krit->uuid }}]"
+                                                class="form-select jurusan-select" data-control="select2" required
+                                                data-placeholder="Pilih Jurusan">
+                                                <option value="" disabled
+                                                    {{ empty(old('subkriteria.' . $krit->uuid)) ? 'selected' : '' }}>--
+                                                    Pilih --</option>
+
+                                                @foreach ($krit->subkriteria as $sub)
+                                                    <option value="{{ $sub->uuid }}"
+                                                        data-nama="{{ trim($sub->nama) }}"
+                                                        {{ old('subkriteria.' . $krit->uuid, $subkriteria_terpilih[$krit->uuid] ?? '') == $sub->uuid ? 'selected' : '' }}>
+                                                        {{ $sub->nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <select name="subkriteria[{{ $krit->uuid }}]" class="form-select"
+                                                data-control="select2" required data-placeholder="Pilih Sub kriteria">
+                                                <option value="" disabled
+                                                    {{ empty(old('subkriteria.' . $krit->uuid)) ? 'selected' : '' }}>
+                                                    -- Pilih --
                                                 </option>
-                                            @endforeach
-                                        </select>
+                                                @foreach ($krit->subkriteria as $sub)
+                                                    <option value="{{ $sub->uuid }}"
+                                                        data-nama="{{ trim($sub->nama) }}"
+                                                        {{ old('subkriteria.' . $krit->uuid, $subkriteria_terpilih[$krit->uuid] ?? '') == $sub->uuid ? 'selected' : '' }}>
+                                                        {{ $sub->nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @endif
                                     </div>
                                 @endforeach
 
@@ -205,158 +228,88 @@
 
         const dataFakultas = [{
                 nama: "Syariah dan Hukum",
-                jurusan: [
-                    "Hukum Keluarga (Ahwal Syakhshiyyah)",
-                    "Hukum Tata Negara (Siyasah)",
-                    "Hukum Ekonomi Syariah (Muamalah)",
-                    "Ilmu Hukum",
-                    "Perbandingan Mazhab dan Hukum"
+                jurusan: ["Hukum Keluarga (Ahwal Syakhshiyyah)", "Hukum Tata Negara (Siyasah)",
+                    "Hukum Ekonomi Syariah (Muamalah)", "Ilmu Hukum", "Perbandingan Mazhab dan Hukum"
                 ]
             },
             {
                 nama: "Ushuluddin dan Filsafat",
-                jurusan: [
-                    "Akidah dan Filsafat Islam",
-                    "Ilmu Al-Qur'an dan Tafsir",
-                    "Ilmu Hadis",
-                    "Studi Agama-Agama"
-                ]
+                jurusan: ["Akidah dan Filsafat Islam", "Ilmu Al-Qur'an dan Tafsir", "Ilmu Hadis", "Studi Agama-Agama"]
             },
             {
                 nama: "Tarbiyah dan Keguruan",
-                jurusan: [
-                    "Pendidikan Agama Islam",
-                    "Pendidikan Bahasa Arab",
-                    "Manajemen Pendidikan Islam",
-                    "Pendidikan Guru Madrasah Ibtidaiyah (PGMI)",
-                    "Pendidikan Islam Anak Usia Dini (PIAUD)",
-                    "Tadris Bahasa Inggris",
-                    "Tadris Ilmu Pengetahuan Alam",
-                    "Tadris Matematika",
-                    "Tadris Biologi",
-                    "Tadris Fisika",
-                    "Tadris Kimia",
-                    "Pendidikan Profesi Guru (PPG)"
+                jurusan: ["Pendidikan Agama Islam", "Pendidikan Bahasa Arab", "Manajemen Pendidikan Islam",
+                    "Pendidikan Guru Madrasah Ibtidaiyah (PGMI)", "Pendidikan Islam Anak Usia Dini (PIAUD)",
+                    "Tadris Bahasa Inggris", "Tadris Ilmu Pengetahuan Alam", "Tadris Matematika", "Tadris Biologi",
+                    "Tadris Fisika", "Tadris Kimia", "Pendidikan Profesi Guru (PPG)"
                 ]
             },
             {
                 nama: "Ekonomi dan Bisnis Islam",
-                jurusan: [
-                    "Ekonomi Syariah",
-                    "Perbankan Syariah",
-                    "Akuntansi Syariah",
-                    "Manajemen Zakat dan Wakaf"
-                ]
+                jurusan: ["Ekonomi Syariah", "Perbankan Syariah", "Akuntansi Syariah", "Manajemen Zakat dan Wakaf"]
             },
             {
                 nama: "Dakwah dan Komunikasi",
-                jurusan: [
-                    "Komunikasi dan Penyiaran Islam",
-                    "Bimbingan dan Konseling Islam",
-                    "Manajemen Dakwah",
-                    "Pengembangan Masyarakat Islam",
-                    "Ilmu Komunikasi",
-                    "Jurnalistik"
+                jurusan: ["Komunikasi dan Penyiaran Islam", "Bimbingan dan Konseling Islam", "Manajemen Dakwah",
+                    "Pengembangan Masyarakat Islam", "Ilmu Komunikasi", "Jurnalistik"
                 ]
             },
             {
                 nama: "Sains dan Teknologi",
-                jurusan: [
-                    "Teknik Informatika",
-                    "Sistem Informasi",
-                    "Teknik Arsitektur",
-                    "Teknik Lingkungan",
-                    "Matematika",
-                    "Biologi",
-                    "Fisika",
-                    "Kimia"
+                jurusan: ["Teknik Informatika", "Sistem Informasi", "Teknik Arsitektur", "Teknik Lingkungan",
+                    "Matematika", "Biologi", "Fisika", "Kimia"
                 ]
             },
             {
                 nama: "Kedokteran dan Ilmu Kesehatan",
-                jurusan: [
-                    "Pendidikan Dokter",
-                    "Kesehatan Masyarakat",
-                    "Ilmu Keperawatan",
-                    "Farmasi",
-                    "Profesi Dokter",
+                jurusan: ["Pendidikan Dokter", "Kesehatan Masyarakat", "Ilmu Keperawatan", "Farmasi", "Profesi Dokter",
                     "Profesi Ners"
                 ]
             },
             {
                 nama: "Adab dan Humaniora",
-                jurusan: [
-                    "Bahasa dan Sastra Arab",
-                    "Sejarah dan Kebudayaan Islam",
-                    "Ilmu Perpustakaan",
+                jurusan: ["Bahasa dan Sastra Arab", "Sejarah dan Kebudayaan Islam", "Ilmu Perpustakaan",
                     "Bahasa dan Sastra Inggris"
                 ]
             }
         ];
 
-        function push_select_fakultas(selectedFakultas = null, selectedJurusan = null) {
-            let html = `<option disabled ${selectedFakultas === null ? 'selected' : ''}>Pilih jenis inputan</option>`;
+        $(document).ready(function() {
+            const $fakultasSelect = $('.fakultas-select');
+            const $jurusanSelect = $('.jurusan-select');
 
-            $.each(dataFakultas, function(index, fakultas) {
-                html +=
-                    `<option value="${index}" ${selectedFakultas == index ? 'selected' : ''}>${fakultas.nama}</option>`;
-            });
+            // Simpan semua option jurusan dari HTML (saat load awal)
+            const allJurusanOptions = $jurusanSelect.find('option').filter(function() {
+                return $(this).val() !== '';
+            }).clone();
 
-            $('#from_select_fakultas').html(html);
+            $fakultasSelect.on('change', function() {
+                const selectedFakultas = $fakultasSelect.find('option:selected').data('nama')?.trim();
+                const jurusanList = dataFakultas.find(f => f.nama === selectedFakultas)?.jurusan || [];
 
-            // Reset jurusan jika fakultas belum dipilih
-            if (selectedFakultas !== null) {
-                let jurusanHtml =
-                    `<option disabled ${selectedJurusan === null ? 'selected' : ''}>Pilih jenis inputan</option>`;
-                $.each(dataFakultas[selectedFakultas].jurusan, function(i, jurusan) {
-                    jurusanHtml +=
-                        `<option value="${jurusan}" ${selectedJurusan == jurusan ? 'selected' : ''}>${jurusan}</option>`;
+                // Kosongkan jurusan saat fakultas diubah
+                $jurusanSelect.empty().append('<option value="" disabled selected>-- Pilih --</option>');
+
+                // Filter ulang jurusan berdasarkan nama yang cocok
+                jurusanList.forEach(function(jurusanNama) {
+                    const $matchedOption = allJurusanOptions.filter(function() {
+                        return $(this).data('nama')?.trim() === jurusanNama;
+                    }).first();
+
+                    if ($matchedOption.length) {
+                        $jurusanSelect.append($matchedOption.clone());
+                    }
                 });
-                $('#from_select_jurusan').html(jurusanHtml);
-            } else {
-                $('#from_select_jurusan').html(`<option selected disabled>Pilih jenis inputan</option>`);
-            }
-        }
 
-        // Ketika fakultas berubah, isi jurusan
-        $('#from_select_fakultas').on('change', function() {
-            const index = $(this).val();
-            let jurusanHtml = `<option selected disabled>Pilih jenis inputan</option>`;
-            $.each(dataFakultas[index].jurusan, function(i, jurusan) {
-                jurusanHtml += `<option value="${jurusan}">${jurusan}</option>`;
+                $jurusanSelect.val('').trigger('change');
+
+                // Reinitialize select2 jika digunakan
+                if ($jurusanSelect.hasClass('select2-hidden-accessible')) {
+                    $jurusanSelect.select2();
+                }
             });
-            $('#from_select_jurusan').html(jurusanHtml);
-        });
 
-
-
-        function push_select_angkatan() {
-            $.ajax({
-                url: "{{ route('admin.angkatan-get') }}",
-                method: "GET",
-                success: function(res) {
-
-                    $('#from_select_angkatan').html("");
-                    let html = "<option selected disabled>Pilih jenis inputan</option>";
-                    $.each(res.data, function(x, y) {
-                        let isSelected = y.uuid == "{{ $mahasiswa->uuid_angkatan }}" ? "selected" : "";
-                        html += `<option value="${y.uuid}" ${isSelected}>${y.angkatan}</option>`;
-                    });
-                    $('#from_select_angkatan').html(html);
-                },
-                error: function(xhr) {
-                    alert("gagal");
-                },
-            });
-        }
-
-        const selectedFakultasIndex = "{{ $mahasiswa->fakultas }}";
-        const selectedJurusan = "{{ $mahasiswa->jurusan }}";
-
-        // Inisialisasi saat halaman siap
-        $(function() {
-            push_select_fakultas(selectedFakultasIndex, selectedJurusan);
-            push_select_angkatan();
+            // Jangan auto-trigger di sini (biarkan default muncul dari Blade saat load)
         });
     </script>
 @endsection

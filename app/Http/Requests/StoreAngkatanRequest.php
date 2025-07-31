@@ -23,6 +23,7 @@ class StoreAngkatanRequest extends FormRequest
     {
         return [
             'angkatan' => 'required',
+            'status' => 'required',
         ];
     }
 
@@ -30,6 +31,7 @@ class StoreAngkatanRequest extends FormRequest
     {
         return [
             'angkatan.required' => 'Kolom angkatan harus di isi.',
+            'status.required' => 'Kolom status harus di isi.',
         ];
     }
 }

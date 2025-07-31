@@ -14,13 +14,46 @@ class PenilaianController extends BaseController
     public function index()
     {
         $module = 'Hasil Penilaian';
-        return view('admin.hasil.index', compact('module'));
+        $angkatan = Angkatan::where('status', 'Aktiv')->first();
+        if (!$angkatan) {
+            return redirect()->route('admin.angkatan')->with('failed', 'Angkatan aktiv belum di tentukan');
+        }
+
+        $result = (new PrometheeService())->proses();
+
+        if (!$result || !is_array($result)) {
+            return $this->sendError('Gagal memproses data.', [], 400);
+        }
+
+        $flattened = [];
+        $jumlahPerLokasi = [];
+
+        foreach ($result as $lokasi) {
+            $namaLokasi = $lokasi['nama_lokasi'] ?? '-';
+            $mahasiswaList = $lokasi['mahasiswa'] ?? [];
+
+            // Hitung jumlah mahasiswa per lokasi
+            $jumlahPerLokasi[$namaLokasi] = count($mahasiswaList);
+
+            foreach ($mahasiswaList as $mhs) {
+                $flattened[] = [
+                    'uuid' => $mhs['uuid'],
+                    'nama' => $mhs['nama'],
+                    'jurusan' => $mhs['jurusan'],
+                    'net_flow' => $mhs['net_flow'],
+                    'nama_lokasi' => $namaLokasi,
+                    'nim' => $mhs['nim'],
+                ];
+            }
+        }
+
+        return view('admin.hasil.index', compact('module', 'jumlahPerLokasi'));
     }
 
-    public function proses($uuid)
+    public function proses()
     {
         try {
-            $result = (new PrometheeService())->proses($uuid);
+            $result = (new PrometheeService())->proses();
 
             if (!$result || !is_array($result)) {
                 return $this->sendError('Gagal memproses data.', [], 400);
@@ -47,10 +80,10 @@ class PenilaianController extends BaseController
         }
     }
 
-    public function export($uuid)
+    public function export()
     {
-        $angkatan = Angkatan::where('uuid', $uuid)->first();
-        $result = (new PrometheeService())->proses($uuid); // hasil dari proses()
+        $angkatan = Angkatan::where('status', 'Aktiv')->first();
+        $result = (new PrometheeService())->proses(); // hasil dari proses()
         $dataLokasi = $result;
 
         $spreadsheet = new Spreadsheet();
@@ -67,8 +100,16 @@ class PenilaianController extends BaseController
         $row = 4;
 
         foreach ($dataLokasi as $lokasi) {
-            // Tampilkan nama lokasi sebagai heading
-            $sheet->setCellValue('A' . $row, 'Lokasi KKN: ' . $lokasi['nama_lokasi']);
+            // Hitung jumlah jurusan unik dan total mahasiswa
+            $jurusanSet = collect($lokasi['mahasiswa'])->pluck('jurusan')->unique();
+            $fakultasSet = collect($lokasi['mahasiswa'])->pluck('fakultas')->unique();
+            $jumlahJurusan = $jurusanSet->count();
+            $jumlahFakultas = $fakultasSet->count();
+            $jumlahMahasiswa = count($lokasi['mahasiswa']);
+
+            // Baris heading lokasi + jumlah jurusan dan mahasiswa
+            $heading = 'Lokasi KKN: ' . $lokasi['nama_lokasi'] . " ({$jumlahFakultas} Fakultas, {$jumlahJurusan} Jurusan, {$jumlahMahasiswa} Mahasiswa)";
+            $sheet->setCellValue('A' . $row, $heading);
             $sheet->mergeCells("A{$row}:F{$row}");
             $sheet->getStyle("A{$row}")->getFont()->setBold(true);
             $row++;
@@ -104,7 +145,6 @@ class PenilaianController extends BaseController
                 $sheet->setCellValue('E' . $row, round($mhs['net_flow'], 4));
                 $sheet->setCellValue('F' . $row, $lokasi['nama_lokasi']);
 
-                // Border tiap baris
                 $sheet->getStyle("A{$row}:F{$row}")->applyFromArray([
                     'borders' => [
                         'allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
@@ -118,8 +158,7 @@ class PenilaianController extends BaseController
                 $row++;
             }
 
-            // Tambahkan baris kosong antar lokasi
-            $row++;
+            $row++; // Spasi antar lokasi
         }
 
         // Auto size kolom

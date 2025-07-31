@@ -11,7 +11,7 @@ class UpdateMahasiswaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,22 @@ class UpdateMahasiswaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nim' => 'required',
+            'nama' => 'required',
+            'semester' => 'required',
+            'sks' => 'required|integer|min:110',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nim.required' => 'Kolom NIM harus diisi.',
+            'nama.required' => 'Kolom nama harus diisi.',
+            'semester.required' => 'Kolom semester harus diisi.',
+            'sks.required' => 'Kolom SKS harus diisi.',
+            'sks.integer' => 'Kolom SKS harus berupa angka.',
+            'sks.min' => 'SKS minimal harus 110.',
         ];
     }
 }

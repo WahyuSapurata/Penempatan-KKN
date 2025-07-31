@@ -14,13 +14,15 @@ class Mahasiswa extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'uuid',
+        'uuid_angkatan',
         'nim',
         'nama',
-        'jenis_kelamin',
-        'fakultas',
-        'jurusan',
-        'alamat',
-        'uuid_angkatan',
+        'semester',
+        'sks',
+        'status',
+        'transkrip',
+        'kelakuan_baik',
+        'pernyataan_kesiapan',
     ];
 
     protected static function boot()

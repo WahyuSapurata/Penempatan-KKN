@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::group(['namespace' => 'App\Http\Controllers'], function () {
     Route::get('/', 'Dashboard@index')->name('home.index');
 
+    Route::get('/register', 'MahasiswaController@register_mahasiswa')->name('register');
+    Route::post('/register-store', 'MahasiswaController@store')->name('register-store');
+
     Route::group(['prefix' => 'login', 'middleware' => ['guest'], 'as' => 'login.'], function () {
         Route::get('/login-akun', 'Auth@show')->name('login-akun');
         Route::post('/login-proses', 'Auth@login_proses')->name('login-proses');
@@ -53,16 +56,17 @@ Route::group(['namespace' => 'App\Http\Controllers'], function () {
         Route::delete('/sub-kriteria-delete/{params}', 'SubKriteriaController@delete')->name('sub-kriteria-delete');
 
         Route::get('/mahasiswa', 'MahasiswaController@index')->name('mahasiswa');
-        Route::get('/mahasiswa-get/{params}', 'MahasiswaController@get')->name('mahasiswa-get');
+        Route::get('/mahasiswa-get', 'MahasiswaController@get')->name('mahasiswa-get');
         Route::get('/mahasiswa-add', 'MahasiswaController@add')->name('mahasiswa-add');
         Route::post('/mahasiswa-store', 'MahasiswaController@store')->name('mahasiswa-store');
         Route::get('/mahasiswa-edit/{params}', 'MahasiswaController@edit')->name('mahasiswa-edit');
         Route::post('/mahasiswa-update/{params}', 'MahasiswaController@update')->name('mahasiswa-update');
         Route::delete('/mahasiswa-delete/{params}', 'MahasiswaController@delete')->name('mahasiswa-delete');
+        Route::post('/mahasiswa-konfirmasi/{params}', 'MahasiswaController@konfirmasi')->name('mahasiswa-konfirmasi');
 
         Route::get('/penilaian', 'PenilaianController@index')->name('penilaian');
-        Route::get('/penilaian-get/{params}', 'PenilaianController@proses')->name('penilaian-get');
-        Route::get('/penilaian-export/{params}', 'PenilaianController@export')->name('penilaian-export');
+        Route::get('/penilaian-get', 'PenilaianController@proses')->name('penilaian-get');
+        Route::get('/penilaian-export', 'PenilaianController@export')->name('penilaian-export');
     });
 
     Route::get('/logout', 'Auth@logout')->name('logout');

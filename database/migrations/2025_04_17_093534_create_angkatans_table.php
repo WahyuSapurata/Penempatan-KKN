@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->string('angkatan');
+            $table->string('status');
             $table->timestamps();
         });
     }

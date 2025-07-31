@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('kriterias', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
+            $table->uuid('uuid_angkatan')->nullable();
             $table->string('nama_kriteria');
             $table->float('bobot');
             $table->string('jenis');
